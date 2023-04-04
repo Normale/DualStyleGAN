@@ -354,6 +354,22 @@ def train(args, loader, generator, discriminator, g_optim, d_optim, g_ema, insty
                 )
             )
 
+            if wandb and args.wandb:
+                wandb.log(
+                    {
+                        "Generator": g_loss_val,
+                        "Discriminator": d_loss_val,
+                        "Augment": ada_aug_p,
+                        "Rt": r_t_stat,
+                        "R1": r1_val,
+                        "Path Length Regularization": path_loss_val,
+                        "Mean Path Length": mean_path_length,
+                        "Real Score": real_score_val,
+                        "Fake Score": fake_score_val,
+                        "Path Length": path_length_val,
+                    }
+                )
+
             if i % 100 == 0 or (i+1) == args.iter:
                 with torch.no_grad():
                     g_ema.eval()
@@ -389,6 +405,7 @@ if __name__ == "__main__":
 
     parser = TrainOptions()
     args = parser.parse()
+
     if args.local_rank == 0:
         print('*'*98)
         
@@ -494,8 +511,7 @@ if __name__ == "__main__":
         drop_last=True,
     )
 
-    if get_rank() == 0 and wandb is not None and args.wandb:
-        wandb.init(project="dualstylegan")
+
     
     ckpt = torch.load(args.encoder_path, map_location='cpu')
     opts = ckpt['opts']
@@ -530,12 +546,14 @@ if __name__ == "__main__":
         instyles += [instyle]
         exstyles += [exstyle]
         Simgs += [Simg]
-
+    Simgs = Simgs[::-1]
     instyles = torch.tensor(np.concatenate(instyles, axis=0)) # instrinsic style codes z^+_i
     Simgs = torch.cat(Simgs, dim=0) # image S
     exstyles = torch.tensor(np.concatenate(exstyles, axis=0)) # exstrinsic style codes z^+_e
     print('Data successfully loaded!')
-    
+    if get_rank() == 0 and wandb is not None and args.wandb:
+        wandb.init(project="dualstylegan")
+        wandb.config.update(args)
     train(args, loader, generator, discriminator, g_optim, d_optim, g_ema, instyles, Simgs, exstyles, vggloss, id_loss, device)
     
     
