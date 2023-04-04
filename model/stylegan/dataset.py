@@ -29,12 +29,22 @@ class MultiResolutionDataset(Dataset):
         return self.length
 
     def __getitem__(self, index):
-        with self.env.begin(write=False) as txn:
-            key = f'{self.resolution}-{str(index).zfill(5)}'.encode('utf-8')
-            img_bytes = txn.get(key)
-
+        lmdb_txn = self.env.begin()
+        lmdb_cursor = lmdb_txn.cursor()
+        formatted = f'{self.resolution}-{str(index).zfill(5)}'
+        # print("FORMATTED =================================", formatted)
+        img_bytes = lmdb_cursor.get(formatted.encode())
+        # img_bytes = lmdb_cursor.get(b'512-30251')
         buffer = BytesIO(img_bytes)
         img = Image.open(buffer)
         img = self.transform(img)
+        # print("IMGSHAPE =================================", img.size())
+        # with self.env.begin(write=False) as txn:
+        #     key = f'{self.resolution}-{str(index).zfill(5)}'.encode('utf-8')
+        #     img_bytes = txn.get(key)
+
+        # buffer = BytesIO(img_bytes)
+        # img = Image.open(buffer)
+        # img = self.transform(img)
 
         return img
