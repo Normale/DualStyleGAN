@@ -15,6 +15,7 @@ In CVPR 2022.<br>
 
 ## Updates
 
+- [02/2023] Add `--wplus` in style_transfer.py to use original w+ pSp encoder rather than z+.
 - [09/2022] Pre-trained models in three new [styles](#combine-dualstylegan-with-state-of-the-art-diffusion-model) (feat. StableDiffusion) are released. 
 - [07/2022] Source code license is updated.
 - [03/2022] Paper and supplementary video are released.
@@ -44,6 +45,8 @@ We recommend running this repository using [Anaconda](https://docs.anaconda.com/
 conda env create -f ./environment/dualstylegan_env.yaml
 ```
 We use CUDA 10.1 so it will install PyTorch 1.7.1 (corresponding to [Line 22](https://github.com/williamyang1991/DualStyleGAN/blob/main/environment/dualstylegan_env.yaml#L22), [Line 25](https://github.com/williamyang1991/DualStyleGAN/blob/main/environment/dualstylegan_env.yaml#L25), [Line 26](https://github.com/williamyang1991/DualStyleGAN/blob/main/environment/dualstylegan_env.yaml#L26) of `dualstylegan_env.yaml`). Please install PyTorch that matches your own CUDA version following [https://pytorch.org/](https://pytorch.org/).
+
+☞ Install on Windows: [here](https://github.com/williamyang1991/VToonify/issues/50#issuecomment-1443061101) and [here](https://github.com/williamyang1991/VToonify/issues/38#issuecomment-1442146800)
 
 ## (1) Dataset Preparation
 
@@ -78,6 +81,7 @@ Pretrained models can be downloaded from [Google Drive](https://drive.google.com
 | Model | Description |
 | :--- | :--- |
 | [encoder](https://drive.google.com/file/d/1NgI4mPkboYvYw3MWcdUaQhkr0OWgs9ej/view?usp=sharing) | Pixel2style2pixel encoder that embeds FFHQ images into StyleGAN2 Z+ latent code |
+| [encoder_wplus](https://drive.google.com/file/d/1IVMWKfF8Yp41tsoLLZ8edwjVg_tkjmqQ/view?usp=share_link) | Original Pixel2style2pixel encoder that embeds FFHQ images into StyleGAN2 W+ latent code |
 | [cartoon](https://drive.google.com/drive/folders/1xPo8PcbMXzcUyvwe5liJrfbA5yx4OF1j?usp=sharing) | DualStyleGAN and sampling models trained on Cartoon dataset, 317 (refined) extrinsic style codes |
 | [caricature](https://drive.google.com/drive/folders/1BwLXWkSyWDApblBPvaHKsRCTqnhiHxUZ?usp=sharing) | DualStyleGAN and sampling models trained on Caricature dataset, 199 (refined) extrinsic style codes |
 | [anime](https://drive.google.com/drive/folders/1YvFj33Bfum4YuBeqNNCYLfiBrD4tpzg7?usp=sharing) | DualStyleGAN and sampling models trained on Anime dataset, 174 (refined) extrinsic style codes |
@@ -93,6 +97,7 @@ The saved checkpoints are under the following folder structure:
 ```
 checkpoint
 |--encoder.pt                     % Pixel2style2pixel model
+|--encoder_wplus.pt               % Pixel2style2pixel model (optional)
 |--cartoon
     |--generator.pt               % DualStyleGAN model
     |--sampler.pt                 % The extrinsic style code sampling model
@@ -134,10 +139,12 @@ python style_transfer.py --content ./data/content/unsplash-rDEOVtE7vOs.jpg --ali
 
 <img src="https://user-images.githubusercontent.com/18130694/159124661-fbb58871-7c7b-449f-95b5-83e44f5973e8.jpg" width="32%"> → <img src="./output/arcane_transfer_13_unsplash-rDEOVtE7vOs_overview.jpg" width="64%">
 
+Specify `--wplus` to use the original pSp encoder to extract the W+ intrinsic style code, which may better preserve the face features of the content image.
+
+**Remarks**: Our trained pSp encoder on Z+/W+ space cannot perfectly encode the content image. If the style transfer result more consistent with the content image is desired, one may use latent optimization to better fit the content image or using other StyleGAN encoders (as discussed in https://github.com/williamyang1991/DualStyleGAN/issues/11 and https://github.com/williamyang1991/DualStyleGAN/issues/29).
+
 More options can be found via `python style_transfer.py  -h`.
 
-
-**Remarks**: Our trained pSp encoder on Z+ space cannot perfectly encode the content image. If the style transfer result more consistent with the content image is desired, one may use latent optimization to better fit the content image or using other StyleGAN encoders (as discussed in https://github.com/williamyang1991/DualStyleGAN/issues/11 and https://github.com/williamyang1991/DualStyleGAN/issues/29).
 
 ### Artistic Portrait Generation
 Generate random Cartoon face images (Results are saved in the `./output/` folder):
