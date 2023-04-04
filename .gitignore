@@ -1,0 +1,7 @@
+data/
+log/
+wandb/
+output/
+checkpoint/
+*.pyc
+*.mdb
