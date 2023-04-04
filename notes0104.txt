@@ -1,0 +1,5 @@
+Puszczam na datasecie z 305 itemami, jpg 1024x1024, filtrowane ręcznie z leonardo ai.
+zmieniam lr ze wzgledu na https://github.com/williamyang1991/DualStyleGAN/issues/19#issuecomment-1109899462
+
+
+python finetune_stylegan.py --iter 3000 --batch 8 --ckpt ./checkpoint/stylegan2-ffhq-config-f.pt --style rpg --augment ./data/rpg/lmdb/ --lr 0.0005 --wandb --save_every 100 --n_sample 16

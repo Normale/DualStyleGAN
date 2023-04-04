@@ -1,0 +1,3 @@
+python -m torch.distributed.launch --nproc_per_node=1 --master_port=8765 finetune_dualstylegan.py --iter 1500 --batch 4 --ckpt ./checkpoint/generator-pretrain.pt --style_loss 0.25 --CX_loss 0.25 --perc_loss 1 --id_loss 1 --L2_reg_loss 0.015 --augment metfaces
+
+
