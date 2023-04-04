@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Style Transfer",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/style_transfer_all.py",
+            "args": [
+                "--content",
+                "./data/content/day_9_0.jpg",
+                "--style",
+                "rpg2",
+                "--model_name",
+                "generator-003000.pt",
+                "--align_face"
+            ]
+        }
+    ]
+}
