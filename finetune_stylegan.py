@@ -69,6 +69,8 @@ class TrainOptions():
                 print('%s: %s' % (str(name), str(value)))
         return self.opt
 
+
+
 def train(args, loader, generator, discriminator, g_optim, d_optim, g_ema, device):
     loader = sample_data(loader)
 
@@ -280,6 +282,7 @@ if __name__ == "__main__":
 
     parser = TrainOptions()
     args = parser.parse()
+
     if args.local_rank == 0:
         print('*'*98)
 
@@ -387,5 +390,6 @@ if __name__ == "__main__":
 
     if get_rank() == 0 and wandb is not None and args.wandb:
         wandb.init(project="stylegan 2")
+        wandb.config.update(args)
 
     train(args, loader, generator, discriminator, g_optim, d_optim, g_ema, device)
