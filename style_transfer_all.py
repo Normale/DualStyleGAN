@@ -109,7 +109,7 @@ def main():
         for style_id in track(range(161), description='Transfering...'):
             stylename = list(exstyles.keys())[style_id]
             latent = torch.tensor(exstyles[stylename]).to(device)
-
+            print("Style id: %d, Style name: %s"%(style_id, stylename))
             if args.preserve_color:
                 latent[:,7:18] = instyle[:,7:18]
             # extrinsic styte code

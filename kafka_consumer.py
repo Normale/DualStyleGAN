@@ -16,6 +16,12 @@ import requests
 from PIL import Image
 from io import BytesIO
 
+
+from api_client import get_client
+client = get_client()
+
+
+
 class TestOptions():
     def __init__(self):
 
@@ -25,6 +31,7 @@ class TestOptions():
         self.parser.add_argument("--model_name", type=str, default='generator-001100.pt', help="name of the saved dualstylegan")
         self.parser.add_argument("--exstyle_name", type=str, default=None, help="name of the extrinsic style codes")
         self.parser.add_argument("--align_face", action="store_true", default=True,  help="apply face alignment to the content image")
+
     def parse(self):
         self.opt = self.parser.parse_args()
         if self.opt.exstyle_name is None:
@@ -49,7 +56,7 @@ def run_alignment(args):
         data = zipfile.read()
         open(modelname, 'wb').write(data) 
     predictor = dlib.shape_predictor(modelname)
-    aligned_image = align_face(filepath=args.content, predictor=predictor)
+    aligned_image = align_face(filepath=args.selectedImage, predictor=predictor)
     return aligned_image
 
 
@@ -78,7 +85,7 @@ def process_images(args, device, generator, encoder):
             I = transform(run_alignment(args)).unsqueeze(dim=0).to(device)
             I = F.adaptive_avg_pool2d(I, 1024)
         else:
-            I = load_image(args.content).to(device)
+            I = load_image(args.selectedImage).to(device)
         viz += [I]
 
         # reconstructed content image and its intrinsic style code
@@ -112,7 +119,7 @@ def process_images(args, device, generator, encoder):
 
     print('Generate images successfully!')
     
-    save_name = args.name+'_%d_%s'%(args.style_id, os.path.basename(args.content).split('.')[0])
+    save_name = args.name+'_%d_%s'%(args.style_id, os.path.basename(args.selectedImage).split('.')[0])
     save_image(torchvision.utils.make_grid(F.adaptive_avg_pool2d(torch.cat(viz, dim=0), 256), 4, 2).cpu(), 
                os.path.join(args.output_path, save_name+'_overview.jpg'))
     save_image(img_gen[0].cpu(), os.path.join(args.output_path, save_name+'.jpg'))
@@ -184,23 +191,19 @@ if __name__ == "__main__":
             print(f"Error while parsing JSON: {e}")
             continue
 
-        # Read the selectedImage file path from the URL
+        # Download the selectedImage from the URL
         selected_image_url = message_json.get("selectedImage")
         if selected_image_url:
-            # Convert the URL to the local file path using pathlib
-            image_path = Path(selected_image_url.replace(base_url, "").replace("/", os.path.sep))
-            local_image_path = Path(r"C:\Users\bartek\GitHub\bachelor\services\backend\storage") / image_path
-            print(f"{image_path=}")
-            print(f"{local_image_path=}")
-            if local_image_path.exists():
-                try:
-                    selected_image = Image.open(local_image_path)
-                except Exception as e:
-                    print(f"Error while reading the image: {e}")
-                    continue
-            else:
-                print(f"Image not found at {local_image_path}")
-                continue
+            # try:
+            response = client.get(selected_image_url)
+            # save it locally
+            
+            print(f"Downloaded image with status code {response.status_code}")
+            # print(f"response.content: {response.content}")
+            selected_image = Image.open(BytesIO(response.content))
+            # except Exception as e:
+                # print(f"Error while downloading or reading the image: {e}")
+                # continue
         else:
             print("No 'selectedImage' URL found in the message.")
             continue

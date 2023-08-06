@@ -8,3 +8,4 @@ checkpoint/*/**
 checkpoint/generator-pretrain_old.pt
 checkpoint/stylegan2-ffhq-512.pth
 checkpoint/*
+*.jpg
