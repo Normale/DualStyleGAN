@@ -15,7 +15,7 @@ class TestOptions():
     def __init__(self):
 
         self.parser = argparse.ArgumentParser(description="Exemplar-Based Style Transfer")
-        self.parser.add_argument("--content", type=str, default='./data/content/081680.jpg', help="path of the content image")
+        self.parser.add_argument("--content", type=str, default='./data/content/google.jpg', help="path of the content image")
         self.parser.add_argument("--style", type=str, default='cartoon', help="target style type")
         self.parser.add_argument("--truncation", type=float, default=0.75, help="truncation for intrinsic style code (content)")
         self.parser.add_argument("--weight", type=float, nargs=18, default=[0.75]*7+[1]*11, help="weight of the extrinsic style")
@@ -56,7 +56,7 @@ def run_alignment(args):
     return aligned_image
 
 
-if __name__ == "__main__":
+def main():
     device = "cuda"
 
     parser = TestOptions()
@@ -105,6 +105,7 @@ if __name__ == "__main__":
         img_rec = torch.clamp(img_rec.detach(), -1, 1)
         viz += [img_rec]
 
+        # breakpoint()
         for style_id in track(range(161), description='Transfering...'):
             stylename = list(exstyles.keys())[style_id]
             latent = torch.tensor(exstyles[stylename]).to(device)
@@ -138,3 +139,6 @@ if __name__ == "__main__":
         save_image(img_gen[0].cpu(), os.path.join(args.output_path, save_name+'.jpg'))
 
         print('Save images successfully!')
+
+if __name__ == "__main__":
+    main()

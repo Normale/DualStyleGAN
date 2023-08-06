@@ -1,0 +1,7 @@
+python ./model/stylegan/prepare_data.py --out ./data/rpg3/lmdb/ --n_worker 4 --size 1024 ./data/rpg3/images/
+
+
+python finetune_stylegan.py --iter 3000 --batch 8 --ckpt ./checkpoint/stylegan2-ffhq-config-f.pt --style rpg3 --augment ./data/rpg3/lmdb/ --lr 0.0005 --wandb --save_every 100 --n_sample 16
+
+python destylize.py --model_name finetune-001100.pt --batch 12 --iter 300 rpg3
+

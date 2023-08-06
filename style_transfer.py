@@ -14,7 +14,7 @@ class TestOptions():
     def __init__(self):
 
         self.parser = argparse.ArgumentParser(description="Exemplar-Based Style Transfer")
-        self.parser.add_argument("--content", type=str, default='./data/content/081680.jpg', help="path of the content image")
+        self.parser.add_argument("--content", type=str, default='./data/content/gesslerova.jpg', help="path of the content image")
         self.parser.add_argument("--style", type=str, default='cartoon', help="target style type")
         self.parser.add_argument("--style_id", type=int, default=53, help="the id of the style image")
         self.parser.add_argument("--truncation", type=float, default=0.75, help="truncation for intrinsic style code (content)")
@@ -58,6 +58,8 @@ def run_alignment(args):
 
 
 if __name__ == "__main__":
+    import time
+    t1 = time.time()
     device = "cuda"
 
     parser = TestOptions()
@@ -98,7 +100,7 @@ if __name__ == "__main__":
     input_is_latent=args.wplus    
     
     print('Load models successfully!')
-    
+    t2 = time.time()
     with torch.no_grad():
         viz = []
         # load content image
@@ -148,3 +150,6 @@ if __name__ == "__main__":
     save_image(img_gen[0].cpu(), os.path.join(args.output_path, save_name+'.jpg'))
 
     print('Save images successfully!')
+    t3 = time.time()
+    print("Model loading time: %f" % (t2 - t1))
+    print("Inference time: %f" % (t3 - t2))

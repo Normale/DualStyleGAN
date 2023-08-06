@@ -2,6 +2,9 @@ data/
 log/
 wandb/
 output/
-checkpoint/
+checkpoint/*/**
 *.pyc
 *.mdb
+checkpoint/generator-pretrain_old.pt
+checkpoint/stylegan2-ffhq-512.pth
+checkpoint/*
