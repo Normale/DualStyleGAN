@@ -95,6 +95,7 @@ def process_images(args, device, generator, encoder):
         viz += [img_rec]
 
         stylename = list(exstyles.keys())[args.style_id]
+        stylename = args.stylename
         latent = torch.tensor(exstyles[stylename]).to(device)
         if args.preserve_color:
             latent[:,7:18] = instyle[:,7:18]
@@ -119,7 +120,7 @@ def process_images(args, device, generator, encoder):
 
     print('Generate images successfully!')
     
-    save_name = args.name+'_%d_%s'%(args.style_id, os.path.basename(args.selectedImage).split('.')[0])
+    save_name = args.name+'_%d_%s'%(args.stylename, os.path.basename(args.selectedImage).split('.')[0])
     save_image(torchvision.utils.make_grid(F.adaptive_avg_pool2d(torch.cat(viz, dim=0), 256), 4, 2).cpu(), 
                os.path.join(args.output_path, save_name+'_overview.jpg'))
     save_image(img_gen[0].cpu(), os.path.join(args.output_path, save_name+'.jpg'))
@@ -208,7 +209,10 @@ if __name__ == "__main__":
             print("No 'selectedImage' URL found in the message.")
             continue
 
-
+        # make stylename from style image
+        # turn it from "http://localhost:5000/style/rpg/images/ace_with_yellow_hair_painted_with_c_1_5508d0a5-97c1-4dd0-86e2-3914cee83b7e_12.jpg"
+        # to "ace_with_yellow_hair_painted_with_c_1_5508d0a5-97c1-4dd0-86e2-3914cee83b7e_12.jpg"
+        message_json["stylename"] = message_json.get("selectedStyleImage").split("/")[-1]
         # Parse options from JSON message
         parser = TestOptions()
         args = parser.parse()
